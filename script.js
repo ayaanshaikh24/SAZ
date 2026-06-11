@@ -215,45 +215,80 @@ function handleFormSubmit(form, onSuccess = null) {
     return;
   }
 
-  // Proceed with Submit animation (mocking request)
+  // ── Web3Forms API Integration ──────────────────────────────────────────
+  // Sends form data as an email to the CEO at sazenterprises788@gmail.com
+  // Get your free access key at: https://web3forms.com/
+  // ──────────────────────────────────────────────────────────────────────
+  const WEB3FORMS_ACCESS_KEY = '0e4b1f8d-b74d-48d9-815b-87d23cf6c2fa';
+
   const submitBtn = form.querySelector('[type="submit"]');
   const spinner = submitBtn.querySelector('.spinner');
   
-  if (submitBtn) {
-    submitBtn.disabled = true;
-    if (spinner) {
-      spinner.style.display = 'inline-block';
+  if (!submitBtn) return;
+
+  // Lock button & show spinner
+  submitBtn.disabled = true;
+  if (spinner) {
+    spinner.style.display = 'inline-block';
+  }
+  const originalText = submitBtn.innerText;
+  
+  submitBtn.childNodes.forEach(node => {
+    if (node.nodeType === Node.TEXT_NODE && node.nodeValue.trim()) {
+      node.nodeValue = 'Sending enquiry…';
     }
-    const originalText = submitBtn.innerText;
-    
-    // Changing text content to reflect action loading state
+  });
+
+  // Collect all form fields
+  const formData = new FormData(form);
+
+  // Append Web3Forms required fields
+  formData.append('access_key', WEB3FORMS_ACCESS_KEY);
+  formData.append('subject', 'New Enquiry — SAZ Enterprises Website');
+  formData.append('from_name', 'SAZ Enterprises Website');
+
+  // Convert to JSON for Web3Forms
+  const jsonData = {};
+  formData.forEach((value, key) => {
+    jsonData[key] = value;
+  });
+
+  fetch('https://api.web3forms.com/submit', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+    body: JSON.stringify(jsonData)
+  })
+  .then(response => response.json())
+  .then(data => {
+    // Reset button state
+    submitBtn.disabled = false;
+    if (spinner) spinner.style.display = 'none';
     submitBtn.childNodes.forEach(node => {
       if (node.nodeType === Node.TEXT_NODE && node.nodeValue.trim()) {
-        node.nodeValue = 'Sending enquiry…';
+        node.nodeValue = originalText;
       }
     });
 
-    // Mock network request delay
-    setTimeout(() => {
-      submitBtn.disabled = false;
-      if (spinner) {
-        spinner.style.display = 'none';
-      }
-      // Restore original text
-      submitBtn.childNodes.forEach(node => {
-        if (node.nodeType === Node.TEXT_NODE && node.nodeValue.trim()) {
-          node.nodeValue = originalText;
-        }
-      });
-      
+    if (data.success) {
       form.reset();
-      showToast('Thank you! Your enquiry has been sent successfully.');
-
-      if (onSuccess) {
-        onSuccess();
+      showToast('Thank you! Your enquiry has been sent successfully. We will contact you within 24 hours.');
+      if (onSuccess) onSuccess();
+    } else {
+      showToast('⚠️ Something went wrong. Please try again or call us directly.');
+    }
+  })
+  .catch(error => {
+    console.error('Form submission error:', error);
+    // Reset button state on error
+    submitBtn.disabled = false;
+    if (spinner) spinner.style.display = 'none';
+    submitBtn.childNodes.forEach(node => {
+      if (node.nodeType === Node.TEXT_NODE && node.nodeValue.trim()) {
+        node.nodeValue = originalText;
       }
-    }, 1500);
-  }
+    });
+    showToast('⚠️ Network error. Please check your connection and try again.');
+  });
 }
 
 function validateForm(form) {
