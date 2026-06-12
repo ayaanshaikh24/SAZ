@@ -383,7 +383,7 @@ function showToast(message) {
    Dynamic Product Details Loader (product-detail.html)
    ========================================================================== */
 const productsDb = {
-  "college-bag-skybags": {
+"college-bag-skybags": {
     "name": "College Bag Skybags",
     "price": "₹200",
     "moq": "100 Pieces",
@@ -395,8 +395,14 @@ const productsDb = {
     "capacity": "30 Litres",
     "origin": "India",
     "desc": "Plain Polyester college bag, perfect for daily use. Durable zippers, padded shoulder straps, multiple compartments.",
-    "imgSrc": "https://5.imimg.com/data5/SELLER/Default/2024/5/419596140/MH/DQ/LP/104789349/9-250x250.jpg"
-  },
+    "imgSrc": "images/scbf.webp",
+    "images": [
+        "images/scbf.webp",
+        "images/scbr.webp",
+        "images/scbb.webp",
+        "images/sbcall.webp"
+    ]
+},
   "college-bag-dot": {
     "name": "College Bag",
     "price": "₹180",
@@ -1385,17 +1391,20 @@ function initProductDetail() {
   const thumbsContainer = document.getElementById('gallery-thumbs-container');
 
   if (mainContainer && thumbsContainer) {
-    // Define the 4 standard gallery views
+    // Define the 4 standard gallery views mapping to the images array indexes
     const views = [
-      { type: 'front', label: `${product.name} - Front View`, icon: '🎒', isReal: true },
-      { type: 'angle', label: `${product.name} - Angle View`, icon: '🎒' },
-      { type: 'interior', label: `${product.name} - Internal Compartment View`, icon: '💼' },
-      { type: 'strap', label: `${product.name} - Strap & Back Padding View`, icon: '🪡' }
+      { type: 'front', label: `${product.name} - Front View`, icon: '🎒', isReal: true, index: 0 },
+      { type: 'angle', label: `${product.name} - Angle View`, icon: '🎒', index: 1 },
+      { type: 'interior', label: `${product.name} - Internal Compartment View`, icon: '💼', index: 2 },
+      { type: 'strap', label: `${product.name} - Strap & Back Padding View`, icon: '🪡', index: 3 }
     ];
 
     // Helper to render main view
     const updateMainView = (view) => {
-      if (view.isReal && product.imgSrc && !product.imgSrc.startsWith('placeholder:')) {
+      const viewImgSrc = (product.images && product.images[view.index]) || null;
+      if (viewImgSrc && !viewImgSrc.startsWith('placeholder:')) {
+        mainContainer.innerHTML = `<img src="${viewImgSrc}" alt="${view.label}" style="width: 100%; height: 100%; object-fit: contain; border-radius: 12px;" />`;
+      } else if (view.isReal && product.imgSrc && !product.imgSrc.startsWith('placeholder:')) {
         mainContainer.innerHTML = `<img src="${product.imgSrc}" alt="${view.label}" style="width: 100%; height: 100%; object-fit: contain; border-radius: 12px;" />`;
       } else {
         mainContainer.innerHTML = `
@@ -1419,8 +1428,11 @@ function initProductDetail() {
       btn.setAttribute('aria-selected', idx === 0 ? 'true' : 'false');
       btn.setAttribute('aria-label', `View ${view.label}`);
 
+      const viewImgSrc = (product.images && product.images[view.index]) || null;
       let thumbContent = '';
-      if (view.isReal && product.imgSrc && !product.imgSrc.startsWith('placeholder:')) {
+      if (viewImgSrc && !viewImgSrc.startsWith('placeholder:')) {
+        thumbContent = `<img src="${viewImgSrc}" alt="${view.label}" style="width: 100%; height: 100%; object-fit: cover; border-radius: 6px;" />`;
+      } else if (view.isReal && product.imgSrc && !product.imgSrc.startsWith('placeholder:')) {
         thumbContent = `<img src="${product.imgSrc}" alt="${view.label}" style="width: 100%; height: 100%; object-fit: cover; border-radius: 6px;" />`;
       } else {
         thumbContent = `
