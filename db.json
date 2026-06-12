@@ -1,391 +1,7 @@
-/* SAZ Enterprises Interactive JavaScript Code */
-
-document.addEventListener('DOMContentLoaded', () => {
-  initMobileMenu();
-  initProductFilter();
-  initImageGallery();
-  initEnquiryModal();
-  initContactForm();
-  initProductDetail();
-});
-
-/* ==========================================================================
-   Mobile Menu Toggle
-   ========================================================================== */
-function initMobileMenu() {
-  const menuBtn = document.querySelector('.mobile-menu-btn');
-  const navMenu = document.querySelector('.nav-menu');
-  
-  if (menuBtn && navMenu) {
-    menuBtn.addEventListener('click', () => {
-      const expanded = menuBtn.getAttribute('aria-expanded') === 'true';
-      menuBtn.setAttribute('aria-expanded', !expanded);
-      navMenu.classList.toggle('mobile-active');
-    });
-
-    // Close menu when clicking outside
-    document.addEventListener('click', (e) => {
-      if (!menuBtn.contains(e.target) && !navMenu.contains(e.target)) {
-        navMenu.classList.remove('mobile-active');
-        menuBtn.setAttribute('aria-expanded', 'false');
-      }
-    });
-  }
-}
-
-/* ==========================================================================
-   Product Catalog Filters (products.html)
-   ========================================================================== */
-function initProductFilter() {
-  const filterBtns = document.querySelectorAll('.filter-btn');
-  const productCards = document.querySelectorAll('.products-grid .product-card');
-
-  if (filterBtns.length > 0 && productCards.length > 0) {
-    // Check URL parameters for filtering on load
-    const urlParams = new URLSearchParams(window.location.search);
-    const catParam = urlParams.get('cat');
-
-    const filterCategory = (filterValue) => {
-      // Set active button
-      filterBtns.forEach(b => {
-        if (b.getAttribute('data-filter') === filterValue) {
-          b.classList.add('active');
-        } else {
-          b.classList.remove('active');
-        }
-      });
-
-      productCards.forEach(card => {
-        const category = card.getAttribute('data-category');
-        
-        if (filterValue === 'all' || category === filterValue) {
-          card.style.display = 'flex';
-        } else {
-          card.style.display = 'none';
-        }
-      });
-    };
-
-    if (catParam) {
-      filterCategory(catParam);
-    }
-
-    filterBtns.forEach(btn => {
-      btn.addEventListener('click', () => {
-        const filterValue = btn.getAttribute('data-filter');
-        filterCategory(filterValue);
-        
-        // Clean URL to keep state clean without reloading
-        const newUrl = window.location.pathname + (filterValue !== 'all' ? `?cat=${filterValue}` : '');
-        window.history.pushState({ path: newUrl }, '', newUrl);
-      });
-    });
-  }
-}
-
-/* ==========================================================================
-   Thumbnail Swapping (product-detail.html)
-   ========================================================================== */
-function initImageGallery() {
-  const thumbs = document.querySelectorAll('.gallery-thumb-btn');
-  const mainImageText = document.querySelector('.gallery-main .placeholder-text');
-
-  if (thumbs.length > 0 && mainImageText) {
-    thumbs.forEach(thumb => {
-      thumb.addEventListener('click', () => {
-        // Remove active from all thumbs
-        thumbs.forEach(t => t.classList.remove('active'));
-        
-        // Add active to current
-        thumb.classList.add('active');
-
-        // Swap the main image description text/src (since we are using placeholders)
-        const label = thumb.getAttribute('data-label');
-        mainImageText.textContent = label;
-      });
-    });
-  }
-}
-
-/* ==========================================================================
-   Enquiry Modal Dialog
-   ========================================================================== */
-function initEnquiryModal() {
-  const openBtns = document.querySelectorAll('[data-open-enquiry]');
-  const modal = document.querySelector('#enquiryModal');
-  const closeBtn = document.querySelector('.modal-close');
-  const modalForm = document.querySelector('#modalEnquiryForm');
-
-  if (modal) {
-    // Open Modal
-    openBtns.forEach(btn => {
-      btn.addEventListener('click', (e) => {
-        e.preventDefault();
-        const productName = btn.getAttribute('data-product-name') || 'B2B Products';
-        const productInput = modal.querySelector('#enquiry-product');
-        
-        if (productInput) {
-          productInput.value = productName;
-        }
-        
-        modal.style.display = 'flex';
-        // Focus first field
-        const firstInput = modal.querySelector('input');
-        if (firstInput) firstInput.focus();
-      });
-    });
-
-    // Close Modal
-    const closeModal = () => {
-      modal.style.display = 'none';
-      if (modalForm) modalForm.reset();
-      clearErrors(modalForm);
-    };
-
-    if (closeBtn) {
-      closeBtn.addEventListener('click', closeModal);
-    }
-
-    modal.addEventListener('click', (e) => {
-      if (e.target === modal) {
-        closeModal();
-      }
-    });
-
-    // Keydown handlers (Close modal on Esc key)
-    document.addEventListener('keydown', (e) => {
-      if (e.key === 'Escape' && modal.style.display === 'flex') {
-        closeModal();
-      }
-    });
-
-    // Handle Form Submission
-    if (modalForm) {
-      modalForm.addEventListener('submit', (e) => {
-        e.preventDefault();
-        handleFormSubmit(modalForm, () => {
-          closeModal();
-        });
-      });
-    }
-  }
-}
-
-/* ==========================================================================
-   Form Handling & Validation
-   ========================================================================== */
-function initContactForm() {
-  const contactForm = document.querySelector('#contactForm');
-  if (contactForm) {
-    // Add real-time phone formatting if present
-    const phoneInput = contactForm.querySelector('input[type="tel"]');
-    if (phoneInput) {
-      phoneInput.addEventListener('input', (e) => {
-        let value = e.target.value.replace(/\D/g, ''); // Non-digits out
-        if (value.length > 10) value = value.slice(0, 10);
-        
-        // Simple visual formatting: XXXXX XXXXX
-        if (value.length > 5) {
-          e.target.value = `${value.slice(0, 5)} ${value.slice(5)}`;
-        } else {
-          e.target.value = value;
-        }
-      });
-    }
-
-    contactForm.addEventListener('submit', (e) => {
-      e.preventDefault();
-      handleFormSubmit(contactForm);
-    });
-  }
-}
-
-function handleFormSubmit(form, onSuccess = null) {
-  clearErrors(form);
-  
-  const errors = validateForm(form);
-  
-  if (errors.length > 0) {
-    // Show errors inline
-    errors.forEach(err => {
-      showError(err.input, err.message);
-    });
-    // Focus the first invalid field
-    errors[0].input.focus();
-    return;
-  }
-
-  // ── Web3Forms API Integration ──────────────────────────────────────────
-  // Sends form data as an email to the CEO at sazenterprises788@gmail.com
-  // Get your free access key at: https://web3forms.com/
-  // ──────────────────────────────────────────────────────────────────────
-  const WEB3FORMS_ACCESS_KEY = '0e4b1f8d-b74d-48d9-815b-87d23cf6c2fa';
-
-  const submitBtn = form.querySelector('[type="submit"]');
-  const spinner = submitBtn.querySelector('.spinner');
-  
-  if (!submitBtn) return;
-
-  // Lock button & show spinner
-  submitBtn.disabled = true;
-  if (spinner) {
-    spinner.style.display = 'inline-block';
-  }
-  const originalText = submitBtn.innerText;
-  
-  submitBtn.childNodes.forEach(node => {
-    if (node.nodeType === Node.TEXT_NODE && node.nodeValue.trim()) {
-      node.nodeValue = 'Sending enquiry…';
-    }
-  });
-
-  // Collect all form fields
-  const formData = new FormData(form);
-
-  // Append Web3Forms required fields
-  formData.append('access_key', WEB3FORMS_ACCESS_KEY);
-  formData.append('subject', 'New Enquiry — SAZ Enterprises Website');
-  formData.append('from_name', 'SAZ Enterprises Website');
-
-  // Convert to JSON for Web3Forms
-  const jsonData = {};
-  formData.forEach((value, key) => {
-    jsonData[key] = value;
-  });
-
-  fetch('https://api.web3forms.com/submit', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
-    body: JSON.stringify(jsonData)
-  })
-  .then(response => response.json())
-  .then(data => {
-    // Reset button state
-    submitBtn.disabled = false;
-    if (spinner) spinner.style.display = 'none';
-    submitBtn.childNodes.forEach(node => {
-      if (node.nodeType === Node.TEXT_NODE && node.nodeValue.trim()) {
-        node.nodeValue = originalText;
-      }
-    });
-
-    if (data.success) {
-      form.reset();
-      showToast('Thank you! Your enquiry has been sent successfully. We will contact you within 24 hours.');
-      if (onSuccess) onSuccess();
-    } else {
-      showToast('⚠️ Something went wrong. Please try again or call us directly.');
-    }
-  })
-  .catch(error => {
-    console.error('Form submission error:', error);
-    // Reset button state on error
-    submitBtn.disabled = false;
-    if (spinner) spinner.style.display = 'none';
-    submitBtn.childNodes.forEach(node => {
-      if (node.nodeType === Node.TEXT_NODE && node.nodeValue.trim()) {
-        node.nodeValue = originalText;
-      }
-    });
-    showToast('⚠️ Network error. Please check your connection and try again.');
-  });
-}
-
-function validateForm(form) {
-  const errors = [];
-  const nameInput = form.querySelector('[name="name"]');
-  const emailInput = form.querySelector('[name="email"]');
-  const phoneInput = form.querySelector('[name="phone"]');
-  const messageInput = form.querySelector('[name="message"]');
-
-  if (nameInput && !nameInput.value.trim()) {
-    errors.push({ input: nameInput, message: 'Full name is required.' });
-  }
-
-  if (emailInput) {
-    const emailVal = emailInput.value.trim();
-    if (!emailVal) {
-      errors.push({ input: emailInput, message: 'Email address is required.' });
-    } else if (!validateEmail(emailVal)) {
-      errors.push({ input: emailInput, message: 'Please enter a valid email address.' });
-    }
-  }
-
-  if (phoneInput) {
-    const phoneVal = phoneInput.value.replace(/\s/g, ''); // Strip formatting spaces
-    if (!phoneVal) {
-      errors.push({ input: phoneInput, message: 'Phone number is required.' });
-    } else if (phoneVal.length < 10) {
-      errors.push({ input: phoneInput, message: 'Please enter a valid 10-digit mobile number.' });
-    }
-  }
-
-  if (messageInput && !messageInput.value.trim()) {
-    errors.push({ input: messageInput, message: 'Please enter details of your enquiry.' });
-  }
-
-  return errors;
-}
-
-function validateEmail(email) {
-  const re = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
-  return re.test(email);
-}
-
-function showError(input, message) {
-  input.classList.add('is-invalid');
-  input.style.borderColor = '#dc2626';
-
-  const errEl = document.createElement('span');
-  errEl.className = 'validation-error';
-  errEl.setAttribute('role', 'alert');
-  errEl.innerHTML = `⚠️ ${message}`;
-  
-  // Insert error after input element
-  input.parentNode.appendChild(errEl);
-}
-
-function clearErrors(form) {
-  if (!form) return;
-  const invalidInputs = form.querySelectorAll('.is-invalid');
-  invalidInputs.forEach(input => {
-    input.classList.remove('is-invalid');
-    input.style.borderColor = '';
-  });
-
-  const errElements = form.querySelectorAll('.validation-error');
-  errElements.forEach(el => el.remove());
-}
-
-/* ==========================================================================
-   Toast Notifications
-   ========================================================================== */
-function showToast(message) {
-  let toast = document.querySelector('#toast-notification');
-  
-  if (!toast) {
-    toast = document.createElement('div');
-    toast.id = 'toast-notification';
-    toast.className = 'toast';
-    toast.setAttribute('aria-live', 'polite');
-    document.body.appendChild(toast);
-  }
-  
-  toast.innerHTML = `<span>✓</span> ${message}`;
-  toast.style.display = 'flex';
-
-  setTimeout(() => {
-    toast.style.display = 'none';
-  }, 4000);
-}
-
-/* ==========================================================================
-   Dynamic Product Details Loader (product-detail.html)
-   ========================================================================== */
-const productsDb = {
+{
   "college-bag-skybags": {
     "name": "College Bag Skybags",
-    "price": "₹200",
+    "price": "\u20b9200",
     "moq": "100 Pieces",
     "material": "Polyester / Nylon",
     "color": "Multiple Colors Available",
@@ -399,7 +15,7 @@ const productsDb = {
   },
   "college-bag-dot": {
     "name": "College Bag",
-    "price": "₹180",
+    "price": "\u20b9180",
     "moq": "100 Pieces",
     "material": "Polyester / Nylon",
     "color": "Multiple Colors Available",
@@ -413,7 +29,7 @@ const productsDb = {
   },
   "adidas-college-bag": {
     "name": "Adidas College Bag",
-    "price": "₹250",
+    "price": "\u20b9250",
     "moq": "100 Pieces",
     "material": "Polyester / Nylon",
     "color": "Multiple Colors Available",
@@ -427,7 +43,7 @@ const productsDb = {
   },
   "sky-college-bag": {
     "name": "Sky College Bag",
-    "price": "₹220",
+    "price": "\u20b9220",
     "moq": "100 Pieces",
     "material": "Polyester / Nylon",
     "color": "Multiple Colors Available",
@@ -441,7 +57,7 @@ const productsDb = {
   },
   "skybag-college-bag": {
     "name": "Skybag College Bag",
-    "price": "₹230",
+    "price": "\u20b9230",
     "moq": "100 Pieces",
     "material": "Polyester / Nylon",
     "color": "Multiple Colors Available",
@@ -455,7 +71,7 @@ const productsDb = {
   },
   "girls-college-bag": {
     "name": "Girls College Bag",
-    "price": "₹210",
+    "price": "\u20b9210",
     "moq": "100 Pieces",
     "material": "Polyester / Nylon",
     "color": "Multiple Colors Available",
@@ -469,7 +85,7 @@ const productsDb = {
   },
   "ladies-college-bag": {
     "name": "Ladies College Bag",
-    "price": "₹240",
+    "price": "\u20b9240",
     "moq": "100 Pieces",
     "material": "Polyester / Nylon",
     "color": "Multiple Colors Available",
@@ -483,7 +99,7 @@ const productsDb = {
   },
   "college-bag-for-girls": {
     "name": "College Bag For Girls",
-    "price": "₹200",
+    "price": "\u20b9200",
     "moq": "100 Pieces",
     "material": "Polyester / Nylon",
     "color": "Multiple Colors Available",
@@ -497,7 +113,7 @@ const productsDb = {
   },
   "school-bags-college-bags": {
     "name": "School Bags College Bags",
-    "price": "₹190",
+    "price": "\u20b9190",
     "moq": "100 Pieces",
     "material": "Polyester / Nylon",
     "color": "Multiple Colors Available",
@@ -511,7 +127,7 @@ const productsDb = {
   },
   "stylish-college-bag": {
     "name": "Stylish College Bag",
-    "price": "₹220",
+    "price": "\u20b9220",
     "moq": "100 Pieces",
     "material": "Polyester / Nylon",
     "color": "Multiple Colors Available",
@@ -525,7 +141,7 @@ const productsDb = {
   },
   "fancy-college-bags": {
     "name": "Fancy College Bags",
-    "price": "₹210",
+    "price": "\u20b9210",
     "moq": "100 Pieces",
     "material": "Polyester / Nylon",
     "color": "Multiple Colors Available",
@@ -539,7 +155,7 @@ const productsDb = {
   },
   "saz-school-college-bagpack": {
     "name": "Saz School And College Bagpack",
-    "price": "₹200",
+    "price": "\u20b9200",
     "moq": "100 Pieces",
     "material": "Polyester / Nylon",
     "color": "Multiple Colors Available",
@@ -553,7 +169,7 @@ const productsDb = {
   },
   "skybags-school-backpacks": {
     "name": "Skybags School Backpacks",
-    "price": "₹180",
+    "price": "\u20b9180",
     "moq": "150 Pieces",
     "material": "Polyester / Waterproof Oxford",
     "color": "Multiple Colors Available",
@@ -567,7 +183,7 @@ const productsDb = {
   },
   "diesel-school-college": {
     "name": "Diesel School And College Bags",
-    "price": "₹220",
+    "price": "\u20b9220",
     "moq": "150 Pieces",
     "material": "Polyester / Waterproof Oxford",
     "color": "Multiple Colors Available",
@@ -581,7 +197,7 @@ const productsDb = {
   },
   "school-bags-dot": {
     "name": "School Bags",
-    "price": "₹170",
+    "price": "\u20b9170",
     "moq": "150 Pieces",
     "material": "Polyester / Waterproof Oxford",
     "color": "Multiple Colors Available",
@@ -595,7 +211,7 @@ const productsDb = {
   },
   "safari-school-bag": {
     "name": "Safari School Bag",
-    "price": "₹200",
+    "price": "\u20b9200",
     "moq": "150 Pieces",
     "material": "Polyester / Waterproof Oxford",
     "color": "Multiple Colors Available",
@@ -609,7 +225,7 @@ const productsDb = {
   },
   "wildcraft-school-bags": {
     "name": "Wildcraft School Bags",
-    "price": "₹250",
+    "price": "\u20b9250",
     "moq": "150 Pieces",
     "material": "Polyester / Waterproof Oxford",
     "color": "Multiple Colors Available",
@@ -623,7 +239,7 @@ const productsDb = {
   },
   "american-tourister-school": {
     "name": "American Tourister School Bags",
-    "price": "₹280",
+    "price": "\u20b9280",
     "moq": "150 Pieces",
     "material": "Polyester / Waterproof Oxford",
     "color": "Multiple Colors Available",
@@ -637,7 +253,7 @@ const productsDb = {
   },
   "polyester-school-bag": {
     "name": "Polyester School Bag",
-    "price": "₹160",
+    "price": "\u20b9160",
     "moq": "150 Pieces",
     "material": "Polyester / Waterproof Oxford",
     "color": "Multiple Colors Available",
@@ -651,7 +267,7 @@ const productsDb = {
   },
   "sky-bag-school-bags": {
     "name": "Sky Bag School Bags",
-    "price": "₹190",
+    "price": "\u20b9190",
     "moq": "150 Pieces",
     "material": "Polyester / Waterproof Oxford",
     "color": "Multiple Colors Available",
@@ -665,7 +281,7 @@ const productsDb = {
   },
   "fancy-school-bag": {
     "name": "Fancy School Bag",
-    "price": "₹180",
+    "price": "\u20b9180",
     "moq": "150 Pieces",
     "material": "Polyester / Waterproof Oxford",
     "color": "Multiple Colors Available",
@@ -679,7 +295,7 @@ const productsDb = {
   },
   "american-tourister-backpack": {
     "name": "American Tourister Backpack",
-    "price": "₹270",
+    "price": "\u20b9270",
     "moq": "150 Pieces",
     "material": "Polyester / Waterproof Oxford",
     "color": "Multiple Colors Available",
@@ -693,7 +309,7 @@ const productsDb = {
   },
   "wildcraft-school-backpack-bag": {
     "name": "Wildcraft School Backpack Bag",
-    "price": "₹260",
+    "price": "\u20b9260",
     "moq": "150 Pieces",
     "material": "Polyester / Waterproof Oxford",
     "color": "Multiple Colors Available",
@@ -707,7 +323,7 @@ const productsDb = {
   },
   "school-bag-printed-blue": {
     "name": "Printed Blue School Bag",
-    "price": "₹175",
+    "price": "\u20b9175",
     "moq": "150 Pieces",
     "material": "Polyester / Waterproof Oxford",
     "color": "Multiple Colors Available",
@@ -721,7 +337,7 @@ const productsDb = {
   },
   "school-bag-casual": {
     "name": "Casual School Bag",
-    "price": "₹165",
+    "price": "\u20b9165",
     "moq": "150 Pieces",
     "material": "Polyester / Waterproof Oxford",
     "color": "Multiple Colors Available",
@@ -735,7 +351,7 @@ const productsDb = {
   },
   "wildcraft-school-college-premium": {
     "name": "Wildcraft School College Premium Backpack",
-    "price": "₹300",
+    "price": "\u20b9300",
     "moq": "150 Pieces",
     "material": "Nylon / Ripstop",
     "color": "Multiple Colors Available",
@@ -749,7 +365,7 @@ const productsDb = {
   },
   "skybags-school-college-backpacks": {
     "name": "Skybags School/College Backpacks",
-    "price": "₹220",
+    "price": "\u20b9220",
     "moq": "150 Pieces",
     "material": "Nylon / Ripstop",
     "color": "Multiple Colors Available",
@@ -763,7 +379,7 @@ const productsDb = {
   },
   "unisex-wildcraft-premium": {
     "name": "Unisex Wildcraft Premium Backpack",
-    "price": "₹310",
+    "price": "\u20b9310",
     "moq": "150 Pieces",
     "material": "Nylon / Ripstop",
     "color": "Multiple Colors Available",
@@ -777,7 +393,7 @@ const productsDb = {
   },
   "skybags-premium-backpacks": {
     "name": "Skybags Premium Backpacks",
-    "price": "₹280",
+    "price": "\u20b9280",
     "moq": "150 Pieces",
     "material": "Nylon / Ripstop",
     "color": "Multiple Colors Available",
@@ -791,7 +407,7 @@ const productsDb = {
   },
   "skybags-backpacks-gen": {
     "name": "Skybags Backpacks",
-    "price": "₹200",
+    "price": "\u20b9200",
     "moq": "150 Pieces",
     "material": "Nylon / Ripstop",
     "color": "Multiple Colors Available",
@@ -805,7 +421,7 @@ const productsDb = {
   },
   "school-backpack-ergonomic": {
     "name": "Ergonomic School Backpack",
-    "price": "₹350",
+    "price": "\u20b9350",
     "moq": "150 Pieces",
     "material": "Nylon / Ripstop",
     "color": "Multiple Colors Available",
@@ -819,7 +435,7 @@ const productsDb = {
   },
   "school-backpack-waterproof": {
     "name": "Waterproof School Backpack",
-    "price": "₹240",
+    "price": "\u20b9240",
     "moq": "150 Pieces",
     "material": "Nylon / Ripstop",
     "color": "Multiple Colors Available",
@@ -833,7 +449,7 @@ const productsDb = {
   },
   "school-backpack-multicolor": {
     "name": "Multicolor School Backpack",
-    "price": "₹195",
+    "price": "\u20b9195",
     "moq": "150 Pieces",
     "material": "Nylon / Ripstop",
     "color": "Multiple Colors Available",
@@ -847,7 +463,7 @@ const productsDb = {
   },
   "school-backpack-lightweight": {
     "name": "Lightweight School Backpack",
-    "price": "₹170",
+    "price": "\u20b9170",
     "moq": "150 Pieces",
     "material": "Nylon / Ripstop",
     "color": "Multiple Colors Available",
@@ -861,7 +477,7 @@ const productsDb = {
   },
   "hp-premium-laptop-backpacks": {
     "name": "HP Premium Laptop Backpacks",
-    "price": "₹350",
+    "price": "\u20b9350",
     "moq": "50 Pieces",
     "material": "1680D Polyester / PU Leather",
     "color": "Multiple Colors Available",
@@ -875,7 +491,7 @@ const productsDb = {
   },
   "american-tourister-laptop": {
     "name": "American Tourister Laptop Backpack",
-    "price": "₹380",
+    "price": "\u20b9380",
     "moq": "50 Pieces",
     "material": "1680D Polyester / PU Leather",
     "color": "Multiple Colors Available",
@@ -889,7 +505,7 @@ const productsDb = {
   },
   "executive-laptop-backpack": {
     "name": "Executive Laptop Backpack",
-    "price": "₹450",
+    "price": "\u20b9450",
     "moq": "50 Pieces",
     "material": "1680D Polyester / PU Leather",
     "color": "Multiple Colors Available",
@@ -903,7 +519,7 @@ const productsDb = {
   },
   "slim-laptop-backpack": {
     "name": "Slim Professional Laptop Backpack",
-    "price": "₹400",
+    "price": "\u20b9400",
     "moq": "50 Pieces",
     "material": "1680D Polyester / PU Leather",
     "color": "Multiple Colors Available",
@@ -917,7 +533,7 @@ const productsDb = {
   },
   "anti-theft-laptop-backpack": {
     "name": "Anti-Theft Laptop Backpack",
-    "price": "₹420",
+    "price": "\u20b9420",
     "moq": "50 Pieces",
     "material": "1680D Polyester / PU Leather",
     "color": "Multiple Colors Available",
@@ -931,7 +547,7 @@ const productsDb = {
   },
   "travel-laptop-backpack": {
     "name": "Travel Laptop Backpack",
-    "price": "₹480",
+    "price": "\u20b9480",
     "moq": "50 Pieces",
     "material": "1680D Polyester / PU Leather",
     "color": "Multiple Colors Available",
@@ -945,7 +561,7 @@ const productsDb = {
   },
   "premium-college-backpack": {
     "name": "Premium College Backpack",
-    "price": "₹320",
+    "price": "\u20b9320",
     "moq": "100 Pieces",
     "material": "600D Polyester",
     "color": "Multiple Colors Available",
@@ -959,7 +575,7 @@ const productsDb = {
   },
   "standard-college-backpack": {
     "name": "Standard College Backpack",
-    "price": "₹290",
+    "price": "\u20b9290",
     "moq": "100 Pieces",
     "material": "600D Polyester",
     "color": "Multiple Colors Available",
@@ -973,7 +589,7 @@ const productsDb = {
   },
   "dual-strap-college-backpack": {
     "name": "Dual-Strap College Backpack",
-    "price": "₹270",
+    "price": "\u20b9270",
     "moq": "100 Pieces",
     "material": "600D Polyester",
     "color": "Multiple Colors Available",
@@ -987,7 +603,7 @@ const productsDb = {
   },
   "sporty-college-backpack": {
     "name": "Sporty College Backpack",
-    "price": "₹260",
+    "price": "\u20b9260",
     "moq": "100 Pieces",
     "material": "600D Polyester",
     "color": "Multiple Colors Available",
@@ -1001,7 +617,7 @@ const productsDb = {
   },
   "trendy-college-backpack": {
     "name": "Trendy College Backpack",
-    "price": "₹280",
+    "price": "\u20b9280",
     "moq": "100 Pieces",
     "material": "600D Polyester",
     "color": "Multiple Colors Available",
@@ -1015,7 +631,7 @@ const productsDb = {
   },
   "compact-college-backpack": {
     "name": "Compact College Backpack",
-    "price": "₹250",
+    "price": "\u20b9250",
     "moq": "100 Pieces",
     "material": "600D Polyester",
     "color": "Multiple Colors Available",
@@ -1029,7 +645,7 @@ const productsDb = {
   },
   "ultra-slim-laptop-briefcase": {
     "name": "Ultra-Slim Laptop Briefcase",
-    "price": "₹390",
+    "price": "\u20b9390",
     "moq": "50 Pieces",
     "material": "Water-resistant Canvas / PU",
     "color": "Multiple Colors Available",
@@ -1043,7 +659,7 @@ const productsDb = {
   },
   "messenger-laptop-bag": {
     "name": "Messenger Laptop Bag",
-    "price": "₹350",
+    "price": "\u20b9350",
     "moq": "50 Pieces",
     "material": "Water-resistant Canvas / PU",
     "color": "Multiple Colors Available",
@@ -1057,7 +673,7 @@ const productsDb = {
   },
   "padded-laptop-sleeve": {
     "name": "Padded Laptop Sleeve Bag",
-    "price": "₹280",
+    "price": "\u20b9280",
     "moq": "50 Pieces",
     "material": "Water-resistant Canvas / PU",
     "color": "Multiple Colors Available",
@@ -1071,7 +687,7 @@ const productsDb = {
   },
   "professional-laptop-bag": {
     "name": "Professional Laptop Bag",
-    "price": "₹420",
+    "price": "\u20b9420",
     "moq": "50 Pieces",
     "material": "Water-resistant Canvas / PU",
     "color": "Multiple Colors Available",
@@ -1085,7 +701,7 @@ const productsDb = {
   },
   "convertible-laptop-bag": {
     "name": "Convertible Laptop Bag",
-    "price": "₹440",
+    "price": "\u20b9440",
     "moq": "50 Pieces",
     "material": "Water-resistant Canvas / PU",
     "color": "Multiple Colors Available",
@@ -1099,7 +715,7 @@ const productsDb = {
   },
   "unisex-gym-duffle": {
     "name": "Unisex Gym/Duffle Bags",
-    "price": "₹350",
+    "price": "\u20b9350",
     "moq": "50 Pieces",
     "material": "Reinforced Ripstop Nylon",
     "color": "Multiple Colors Available",
@@ -1113,7 +729,7 @@ const productsDb = {
   },
   "unisex-premium-gym-duffle": {
     "name": "Unisex Premium Gym/Duffle Bags",
-    "price": "₹400",
+    "price": "\u20b9400",
     "moq": "50 Pieces",
     "material": "Reinforced Ripstop Nylon",
     "color": "Multiple Colors Available",
@@ -1127,7 +743,7 @@ const productsDb = {
   },
   "unisex-duffel-gym-bags": {
     "name": "Unisex Duffel Gym Bags",
-    "price": "₹320",
+    "price": "\u20b9320",
     "moq": "50 Pieces",
     "material": "Reinforced Ripstop Nylon",
     "color": "Multiple Colors Available",
@@ -1141,7 +757,7 @@ const productsDb = {
   },
   "unisex-gym-duffle-bags-2": {
     "name": "Unisex Gym Duffle Bags",
-    "price": "₹300",
+    "price": "\u20b9300",
     "moq": "50 Pieces",
     "material": "Reinforced Ripstop Nylon",
     "color": "Multiple Colors Available",
@@ -1155,7 +771,7 @@ const productsDb = {
   },
   "travel-bag-manufacturers": {
     "name": "Travel Bag Manufacturers In Mumbai",
-    "price": "₹550",
+    "price": "\u20b9550",
     "moq": "50 Pieces",
     "material": "Reinforced Ripstop Nylon",
     "color": "Multiple Colors Available",
@@ -1169,7 +785,7 @@ const productsDb = {
   },
   "pink-polyester-kids": {
     "name": "Pink Polyester Kids School Bag",
-    "price": "₹150",
+    "price": "\u20b9150",
     "moq": "200 Pieces",
     "material": "Soft Oxford Cloth / Velvet",
     "color": "Multiple Colors Available",
@@ -1183,7 +799,7 @@ const productsDb = {
   },
   "cartoon-printed-kids": {
     "name": "Cartoon Printed Kid School Bags",
-    "price": "₹140",
+    "price": "\u20b9140",
     "moq": "200 Pieces",
     "material": "Soft Oxford Cloth / Velvet",
     "color": "Multiple Colors Available",
@@ -1197,7 +813,7 @@ const productsDb = {
   },
   "cute-kids-printed-bag": {
     "name": "Cute Kids Printed Bag",
-    "price": "₹180",
+    "price": "\u20b9180",
     "moq": "200 Pieces",
     "material": "Soft Oxford Cloth / Velvet",
     "color": "Multiple Colors Available",
@@ -1211,7 +827,7 @@ const productsDb = {
   },
   "cotton-tote-bag": {
     "name": "Cotton Tote Bag",
-    "price": "₹80",
+    "price": "\u20b980",
     "moq": "500 Pieces",
     "material": "Eco-friendly Cotton Canvas",
     "color": "Multiple Colors Available",
@@ -1225,7 +841,7 @@ const productsDb = {
   },
   "cotton-drawstring-bag": {
     "name": "Cotton Drawstring Bag",
-    "price": "₹60",
+    "price": "\u20b960",
     "moq": "500 Pieces",
     "material": "Eco-friendly Cotton Canvas",
     "color": "Multiple Colors Available",
@@ -1239,7 +855,7 @@ const productsDb = {
   },
   "cotton-canvas-bag": {
     "name": "Cotton Canvas Shopping Bag",
-    "price": "₹100",
+    "price": "\u20b9100",
     "moq": "500 Pieces",
     "material": "Eco-friendly Cotton Canvas",
     "color": "Multiple Colors Available",
@@ -1253,7 +869,7 @@ const productsDb = {
   },
   "casual-shoulder-bag": {
     "name": "Casual Shoulder Bag",
-    "price": "₹250",
+    "price": "\u20b9250",
     "moq": "200 Pieces",
     "material": "Polyester / PU",
     "color": "Multiple Colors Available",
@@ -1267,7 +883,7 @@ const productsDb = {
   },
   "beauty-vanity-bag": {
     "name": "Beauty Vanity Bag",
-    "price": "₹180",
+    "price": "\u20b9180",
     "moq": "300 Pieces",
     "material": "Water-resistant PVC / Nylon",
     "color": "Multiple Colors Available",
@@ -1281,7 +897,7 @@ const productsDb = {
   },
   "crossbody-sling-bag": {
     "name": "Crossbody Sling Bag",
-    "price": "₹200",
+    "price": "\u20b9200",
     "moq": "300 Pieces",
     "material": "Nylon / Canvas",
     "color": "Multiple Colors Available",
@@ -1295,7 +911,7 @@ const productsDb = {
   },
   "casual-duffle-bag": {
     "name": "Casual Duffle Bag",
-    "price": "₹280",
+    "price": "\u20b9280",
     "moq": "50 Pieces",
     "material": "Reinforced Ripstop Nylon",
     "color": "Multiple Colors Available",
@@ -1306,147 +922,5 @@ const productsDb = {
     "origin": "India",
     "desc": "Casual duffle bag for short trips. Spacious interior, sturdy handles, adjustable shoulder strap, side pockets.",
     "imgSrc": "https://5.imimg.com/data5/SELLER/Default/2024/4/413592689/MT/MS/VI/104789349/duffle-bags-250x250.jpg"
-  }
-};
-
-function initProductDetail() {
-  const detailContainer = document.querySelector('.product-detail-layout');
-  if (!detailContainer) return;
-
-  const urlParams = new URLSearchParams(window.location.search);
-  const productId = urlParams.get('id');
-  const product = productsDb[productId];
-
-  const errorContainer = document.getElementById('product-error-container');
-  const detailLayout = document.querySelector('.product-detail-layout');
-
-  if (!product) {
-    // Hide details and show error fallback
-    if (detailLayout) detailLayout.style.display = 'none';
-    if (errorContainer) errorContainer.style.display = 'block';
-    
-    // Update breadcrumbs and document title
-    const breadcrumbName = document.querySelector('.breadcrumb-product-name');
-    if (breadcrumbName) breadcrumbName.textContent = 'Product Not Found';
-    document.title = 'Product Not Found | SAZ Enterprises';
-    return;
-  }
-
-  // Ensure details layout is shown and error container is hidden
-  if (detailLayout) detailLayout.style.display = 'grid';
-  if (errorContainer) errorContainer.style.display = 'none';
-
-  // Update breadcrumb and document title
-  const breadcrumbName = document.querySelector('.breadcrumb-product-name');
-  if (breadcrumbName) breadcrumbName.textContent = product.name;
-  document.title = `${product.name} | B2B Bag Catalog | SAZ Enterprises`;
-
-  // Update main text
-  const titleEl = document.querySelector('.product-title');
-  if (titleEl) titleEl.textContent = product.name;
-
-  const descEl = document.querySelector('.product-desc');
-  if (descEl) descEl.textContent = product.desc;
-
-  // Update price and MOQ
-  const priceValEl = document.querySelector('.price-val');
-  if (priceValEl) priceValEl.textContent = `${product.price}`;
-  
-  const moqValEl = document.querySelector('.moq-val');
-  if (moqValEl) moqValEl.textContent = product.moq;
-
-  // Update Specs Table
-  const setSpec = (specName, value) => {
-    const el = document.querySelector(`[data-spec="${specName}"]`);
-    if (el) el.textContent = value;
-  };
-
-  setSpec('material', product.material);
-  setSpec('color', product.color);
-  setSpec('usage', product.usage);
-  setSpec('pattern', product.pattern);
-  setSpec('gender', product.gender);
-  setSpec('capacity', product.capacity);
-  setSpec('origin', product.origin);
-
-  // Update Form and Button presets
-  const enquiryBtn = document.querySelector('.btn-enquiry');
-  if (enquiryBtn) {
-    enquiryBtn.setAttribute('data-product-name', product.name);
-  }
-  
-  const quoteLnk = document.querySelector('.quote-link');
-  if (quoteLnk) {
-    quoteLnk.setAttribute('data-product-name', product.name);
-  }
-
-  // Dynamic gallery setup for real images vs. placeholders
-  const mainContainer = document.getElementById('gallery-main-container');
-  const thumbsContainer = document.getElementById('gallery-thumbs-container');
-
-  if (mainContainer && thumbsContainer) {
-    // Define the 4 standard gallery views
-    const views = [
-      { type: 'front', label: `${product.name} - Front View`, icon: '🎒', isReal: true },
-      { type: 'angle', label: `${product.name} - Angle View`, icon: '🎒' },
-      { type: 'interior', label: `${product.name} - Internal Compartment View`, icon: '💼' },
-      { type: 'strap', label: `${product.name} - Strap & Back Padding View`, icon: '🪡' }
-    ];
-
-    // Helper to render main view
-    const updateMainView = (view) => {
-      if (view.isReal && product.imgSrc && !product.imgSrc.startsWith('placeholder:')) {
-        mainContainer.innerHTML = `<img src="${product.imgSrc}" alt="${view.label}" style="width: 100%; height: 100%; object-fit: contain; border-radius: 12px;" />`;
-      } else {
-        mainContainer.innerHTML = `
-          <div class="img-placeholder" style="border-radius: 12px; height: 100%; display: flex; flex-direction: column; align-items: center; justify-content: center;">
-            <span class="placeholder-icon" aria-hidden="true" style="font-size: 48px; color: var(--primary-accent); margin-bottom: 8px;">${view.icon}</span>
-            <p class="placeholder-text" style="font-weight: 600; font-size: 16px; color: var(--text-dark);">${view.label}</p>
-          </div>
-        `;
-      }
-    };
-
-    // Set initial main view
-    updateMainView(views[0]);
-
-    // Populate thumbnails
-    thumbsContainer.innerHTML = '';
-    views.forEach((view, idx) => {
-      const btn = document.createElement('button');
-      btn.className = `gallery-thumb-btn ${idx === 0 ? 'active' : ''}`;
-      btn.setAttribute('role', 'tab');
-      btn.setAttribute('aria-selected', idx === 0 ? 'true' : 'false');
-      btn.setAttribute('aria-label', `View ${view.label}`);
-
-      let thumbContent = '';
-      if (view.isReal && product.imgSrc && !product.imgSrc.startsWith('placeholder:')) {
-        thumbContent = `<img src="${product.imgSrc}" alt="${view.label}" style="width: 100%; height: 100%; object-fit: cover; border-radius: 6px;" />`;
-      } else {
-        thumbContent = `
-          <div class="img-placeholder" style="border-radius: 4px; border: none; padding: 0; aspect-ratio: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100%;">
-            <span class="placeholder-icon" aria-hidden="true" style="font-size: 16px; margin-bottom: 2px;">${view.icon}</span>
-            <span class="placeholder-text" style="font-size: 9px; line-height: 1;">${idx === 0 ? 'Front' : idx === 1 ? 'Angle' : idx === 2 ? 'Interior' : 'Strap'}</span>
-          </div>
-        `;
-      }
-
-      btn.innerHTML = thumbContent;
-
-      btn.addEventListener('click', () => {
-        // Remove active class from all buttons
-        thumbsContainer.querySelectorAll('.gallery-thumb-btn').forEach(b => {
-          b.classList.remove('active');
-          b.setAttribute('aria-selected', 'false');
-        });
-        // Set active on clicked button
-        btn.classList.add('active');
-        btn.setAttribute('aria-selected', 'true');
-        // Update main view
-        updateMainView(view);
-      });
-
-      thumbsContainer.appendChild(btn);
-    });
   }
 }
