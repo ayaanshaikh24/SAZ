@@ -397,10 +397,10 @@ const productsDb = {
     "desc": "Plain Polyester college bag, perfect for daily use. Durable zippers, padded shoulder straps, multiple compartments.",
     "imgSrc": "images/scbf.webp",
     "images": [
-        "images/scbf.webp",
-        "images/scbr.webp",
-        "images/scbb.webp",
-        "images/sbcall.webp"
+        "images/college-bags/scbf.webp",
+        "images/college-bags/scbr.webp",
+        "images/college-bags/scbb.webp",
+        "images/college-bags/sbcall.webp"
     ]
 },
   "college-bag-dot": {
@@ -415,7 +415,13 @@ const productsDb = {
     "capacity": "30 Litres",
     "origin": "India",
     "desc": "Polyester college bag with modern design. Spacious main compartment, front pocket, side mesh pockets for bottles.",
-    "imgSrc": "https://5.imimg.com/data5/SELLER/Default/2024/5/419595677/KO/UU/VK/104789349/1-250x250.jpg"
+    // "imgSrc": "images/college-bags/college-bag-dot-front.png",
+     "images": [
+         "images/college-bags/college-bag-dot-front.png",
+        "images/college-bags/college-bag-dot-side.png",
+        "images/college-bags/college-bag-dot-back.png",
+        "images/college-bags/college-bag-dot-group.png"
+    ]
   },
   "adidas-college-bag": {
     "name": "Adidas College Bag",
@@ -429,7 +435,13 @@ const productsDb = {
     "capacity": "30 Litres",
     "origin": "India",
     "desc": "Premium Adidas-style college bag. Lightweight, ergonomic design with padded back panel and adjustable straps.",
-    "imgSrc": "https://5.imimg.com/data5/SELLER/Default/2024/5/419595892/OU/UB/TZ/104789349/5-250x250.jpg"
+    // "imgSrc": "https://5.imimg.com/data5/SELLER/Default/2024/5/419595892/OU/UB/TZ/104789349/5-250x250.jpg"
+     "images": [
+         "images/college-bags/adias-clg-bag-front.png",
+        "images/college-bags/adidas-clg-bag-side.png",
+        "images/college-bags/adidas-clg-bag-back.png",
+        "images/college-bags/adiads-college-bag-group.png"
+    ]
   },
   "sky-college-bag": {
     "name": "Sky College Bag",
@@ -443,7 +455,13 @@ const productsDb = {
     "capacity": "30 Litres",
     "origin": "India",
     "desc": "Polyester college bag with vibrant sky design. Water-resistant material, durable construction, multiple pockets.",
-    "imgSrc": "https://5.imimg.com/data5/SELLER/Default/2024/5/419596228/LB/LK/SE/104789349/13-250x250.jpg"
+    // "imgSrc": "https://5.imimg.com/data5/SELLER/Default/2024/5/419596228/LB/LK/SE/104789349/13-250x250.jpg"
+     "images": [
+         "images/college-bags/sky-bag-f.png",
+        "images/college-bags/sky-bag-s.png",
+        "images/college-bags/sky-bag-b.png",
+        "images/college-bags/sky-bag-g.png"
+    ]
   },
   "skybag-college-bag": {
     "name": "Skybag College Bag",
@@ -457,7 +475,13 @@ const productsDb = {
     "capacity": "30 Litres",
     "origin": "India",
     "desc": "Stylish Skybag college bag with trendy prints. Comfortable padded straps, laptop compartment, organizer pocket.",
-    "imgSrc": "https://5.imimg.com/data5/SELLER/Default/2024/5/419597211/MN/GX/OU/104789349/40-250x250.jpg"
+    // "imgSrc": "https://5.imimg.com/data5/SELLER/Default/2024/5/419597211/MN/GX/OU/104789349/40-250x250.jpg"
+     "images": [
+         "images/college-bags/skb-f.png",
+        "images/college-bags/skb-g.png",
+        "images/college-bags/skb-g2.png",
+       
+    ]
   },
   "girls-college-bag": {
     "name": "Girls College Bag",
@@ -471,7 +495,14 @@ const productsDb = {
     "capacity": "30 Litres",
     "origin": "India",
     "desc": "Specially designed for girls with elegant patterns. Lightweight, spacious interior, secure zip closures.",
-    "imgSrc": "https://5.imimg.com/data5/SELLER/Default/2024/5/419596595/AL/IR/GM/104789349/21-250x250.jpg"
+    // "imgSrc": "https://5.imimg.com/data5/SELLER/Default/2024/5/419596595/AL/IR/GM/104789349/21-250x250.jpg"
+    "images": [
+        "images/college-bags/gcb-f.png",
+        "images/college-bags/gcb-s.png",
+         "images/college-bags/gcb-b.png",
+        "images/college-bags/gcb-g.png",
+        
+    ]
   },
   "ladies-college-bag": {
     "name": "Ladies College Bag",
@@ -485,7 +516,11 @@ const productsDb = {
     "capacity": "30 Litres",
     "origin": "India",
     "desc": "Elegant ladies college bag with fashionable design. Padded laptop sleeve, multiple compartments, comfortable carry.",
-    "imgSrc": "https://5.imimg.com/data5/SELLER/Default/2024/5/419596990/QH/KP/OL/104789349/34-250x250.jpg"
+    // "imgSrc": "https://5.imimg.com/data5/SELLER/Default/2024/5/419596990/QH/KP/OL/104789349/34-250x250.jpg"
+    "images": [
+        "images/college-bags/lcb-g.png",
+        "images/college-bags/lcb-g2.png",
+    ]
   },
   "college-bag-for-girls": {
     "name": "College Bag For Girls",
@@ -499,7 +534,12 @@ const productsDb = {
     "capacity": "30 Litres",
     "origin": "India",
     "desc": "Trendy college bag designed for girls. Attractive colors, durable material, spacious and well-organized interior.",
-    "imgSrc": "https://5.imimg.com/data5/IOS/Default/2024/5/419963239/UU/UM/HW/104789349/product-jpeg-250x250.png"
+    // "imgSrc": "https://5.imimg.com/data5/IOS/Default/2024/5/419963239/UU/UM/HW/104789349/product-jpeg-250x250.png"
+    "images": [
+        "images/college-bags/cg-f.png",
+        "images/college-bags/cg-s.png",
+        "images/college-bags/cg-b.png"
+    ]
   },
   "school-bags-college-bags": {
     "name": "School Bags College Bags",
@@ -513,7 +553,12 @@ const productsDb = {
     "capacity": "30 Litres",
     "origin": "India",
     "desc": "Versatile dual-purpose bag for school and college. Heavy-duty construction, ergonomic padding, multiple pockets.",
-    "imgSrc": "https://5.imimg.com/data5/IOS/Default/2025/5/510628584/VM/YK/GK/104789349/product-jpeg-250x250.png"
+    // "imgSrc": "https://5.imimg.com/data5/IOS/Default/2025/5/510628584/VM/YK/GK/104789349/product-jpeg-250x250.png"
+    "images": [
+      "images/college-bags/sbc-f.png",
+      "images/college-bags/sbc-f2.png",
+      "images/college-bags/sbc-f3.png"
+    ]
   },
   "stylish-college-bag": {
     "name": "Stylish College Bag",
@@ -541,7 +586,12 @@ const productsDb = {
     "capacity": "30 Litres",
     "origin": "India",
     "desc": "Fancy design college bags with premium finish. Eye-catching prints, sturdy build, ideal for college students.",
-    "imgSrc": "https://5.imimg.com/data5/IOS/Default/2025/5/510627452/OV/RW/ET/104789349/product-jpeg-250x250.png"
+    // "imgSrc": "https://5.imimg.com/data5/IOS/Default/2025/5/510627452/OV/RW/ET/104789349/product-jpeg-250x250.png"
+    "images": [
+      "images/college-bags/fastion.png",
+      "images/college-bags/fastion2.png",
+      "images/college-bags/fastion3.png"
+    ]
   },
   "saz-school-college-bagpack": {
     "name": "Saz School And College Bagpack",
@@ -555,7 +605,12 @@ const productsDb = {
     "capacity": "30 Litres",
     "origin": "India",
     "desc": "SAZ's own brand school & college backpack. High-quality polyester, water-resistant, reinforced stitching.",
-    "imgSrc": "https://5.imimg.com/data5/IOS/Default/2025/4/504567525/WA/MB/HB/104789349/product-jpeg-250x250.png"
+    // "imgSrc": "https://5.imimg.com/data5/IOS/Default/2025/4/504567525/WA/MB/HB/104789349/product-jpeg-250x250.png"
+    "images": [
+        "images/college-bags/saz-snc-f.png",
+        "images/college-bags/saz-snc-g.png"
+        
+    ]
   },
   "skybags-school-backpacks": {
     "name": "Skybags School Backpacks",
@@ -569,7 +624,14 @@ const productsDb = {
     "capacity": "25 Litres",
     "origin": "India",
     "desc": "Printed Polyester school backpacks. Durable construction, padded shoulder straps, multiple compartments for books and supplies.",
-    "imgSrc": "https://5.imimg.com/data5/IOS/Default/2024/12/474299572/UY/RG/LT/104789349/product-jpeg-250x250.png"
+    // "imgSrc": "https://5.imimg.com/data5/IOS/Default/2024/12/474299572/UY/RG/LT/104789349/product-jpeg-250x250.png"
+    "images": [
+        "images/school-bags/sky=sb-f.png",
+        "images/school-bags/sky-sb-f2.png",
+        "images/school-bags/sky-sb-b.png"
+
+        
+    ]
   },
   "diesel-school-college": {
     "name": "Diesel School And College Bags",
@@ -583,7 +645,11 @@ const productsDb = {
     "capacity": "25 Litres",
     "origin": "India",
     "desc": "Diesel-style school and college bags. Rugged design, heavy-duty zippers, padded back for comfort during long hours.",
-    "imgSrc": "https://5.imimg.com/data5/IOS/Default/2024/12/474297330/NL/EA/DL/104789349/product-jpeg-250x250.png"
+    // "imgSrc": "https://5.imimg.com/data5/IOS/Default/2024/12/474297330/NL/EA/DL/104789349/product-jpeg-250x250.png"
+    "images": [
+        "images/school-bags/diseal-f.png",
+        "images/school-bags/diseal-b.png"   
+    ]
   },
   "school-bags-dot": {
     "name": "School Bags",
