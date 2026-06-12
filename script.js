@@ -397,10 +397,10 @@ const productsDb = {
     "desc": "Plain Polyester college bag, perfect for daily use. Durable zippers, padded shoulder straps, multiple compartments.",
     "imgSrc": "images/scbf.webp",
     "images": [
-        "images/scbf.webp",
-        "images/scbr.webp",
-        "images/scbb.webp",
-        "images/sbcall.webp"
+        "images/college-bags/scbf.webp",
+        "images/college-bags/scbr.webp",
+        "images/college-bags/scbb.webp",
+        "images/college-bags/sbcall.webp"
     ]
 },
   "college-bag-dot": {
@@ -415,7 +415,13 @@ const productsDb = {
     "capacity": "30 Litres",
     "origin": "India",
     "desc": "Polyester college bag with modern design. Spacious main compartment, front pocket, side mesh pockets for bottles.",
-    "imgSrc": "https://5.imimg.com/data5/SELLER/Default/2024/5/419595677/KO/UU/VK/104789349/1-250x250.jpg"
+    // "imgSrc": "images/college-bags/college-bag-dot-front.png",
+     "images": [
+         "images/college-bags/college-bag-dot-front.png",
+        "images/college-bags/college-bag-dot-side.png",
+        "images/college-bags/college-bag-dot-back.png",
+        "images/college-bags/college-bag-dot-group.png"
+    ]
   },
   "adidas-college-bag": {
     "name": "Adidas College Bag",
@@ -429,7 +435,13 @@ const productsDb = {
     "capacity": "30 Litres",
     "origin": "India",
     "desc": "Premium Adidas-style college bag. Lightweight, ergonomic design with padded back panel and adjustable straps.",
-    "imgSrc": "https://5.imimg.com/data5/SELLER/Default/2024/5/419595892/OU/UB/TZ/104789349/5-250x250.jpg"
+    // "imgSrc": "https://5.imimg.com/data5/SELLER/Default/2024/5/419595892/OU/UB/TZ/104789349/5-250x250.jpg"
+     "images": [
+         "images/college-bags/adias-clg-bag-front.png",
+        "images/college-bags/adidas-clg-bag-side.png",
+        "images/college-bags/adidas-clg-bag-back.png",
+        "images/college-bags/adiads-college-bag-group.png"
+    ]
   },
   "sky-college-bag": {
     "name": "Sky College Bag",
