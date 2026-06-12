@@ -384,7 +384,7 @@ function showToast(message) {
    ========================================================================== */
 const productsDb = {
 "college-bag-skybags": {
-    "name": "College Bag Skybags",
+    "name": "Sky College Bag",
     "price": "₹200",
     "moq": "100 Pieces",
     "material": "Polyester / Nylon",
@@ -395,7 +395,7 @@ const productsDb = {
     "capacity": "30 Litres",
     "origin": "India",
     "desc": "Plain Polyester college bag, perfect for daily use. Durable zippers, padded shoulder straps, multiple compartments.",
-    "imgSrc": "images/scbf.webp",
+    "imgSrc": "images/college-bags/scbf.webp",
     "images": [
         "images/college-bags/scbf.webp",
         "images/college-bags/scbr.webp",
