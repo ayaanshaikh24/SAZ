@@ -217,6 +217,17 @@ select:focus-visible {
   gap: 16px;
 }
 
+.header-cta .btn-primary {
+  background-color: var(--bg-white);
+  border-color: var(--border-medium);
+  color: var(--text-dark);
+}
+
+.header-cta .btn-primary:hover {
+  background-color: var(--bg-light);
+  border-color: var(--border-medium);
+}
+
 .mobile-menu-btn {
   display: none;
   background: none;
