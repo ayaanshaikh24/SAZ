@@ -7,6 +7,11 @@ document.addEventListener('DOMContentLoaded', () => {
   initEnquiryModal();
   initContactForm();
   initProductDetail();
+  initScrollAnimations();
+  initStickyHeader();
+  initStatsCounter();
+  initButtonRipples();
+  initBackToTop();
 });
 
 /* ==========================================================================
@@ -1528,3 +1533,138 @@ function initProductDetail() {
     });
   }
 }
+
+/* ==========================================================================
+   Redesign Interactivity & Motion Logic
+   ========================================================================== */
+
+function initScrollAnimations() {
+  const revealElements = document.querySelectorAll('.reveal');
+  
+  if ('IntersectionObserver' in window) {
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          entry.target.classList.add('reveal-active');
+        }
+      });
+    }, {
+      threshold: 0.05,
+      rootMargin: '0px 0px -40px 0px'
+    });
+    
+    revealElements.forEach(el => observer.observe(el));
+  } else {
+    // Fallback if IntersectionObserver is not supported
+    revealElements.forEach(el => el.classList.add('reveal-active'));
+  }
+}
+
+function initStickyHeader() {
+  const header = document.querySelector('.main-header');
+  if (header) {
+    window.addEventListener('scroll', () => {
+      if (window.scrollY > 80) {
+        header.classList.add('header-sticky');
+      } else {
+        header.classList.remove('header-sticky');
+      }
+    });
+  }
+}
+
+function initStatsCounter() {
+  const counterElements = document.querySelectorAll('.stat-counter');
+  
+  if (counterElements.length === 0) return;
+  
+  const animateCounter = (el) => {
+    const target = parseInt(el.getAttribute('data-target'), 10);
+    const duration = 2000; // 2 seconds animation
+    const startTime = performance.now();
+    
+    const updateCount = (currentTime) => {
+      const elapsedTime = currentTime - startTime;
+      const progress = Math.min(elapsedTime / duration, 1);
+      
+      // Easing out quadratic function
+      const easeProgress = progress * (2 - progress);
+      const currentVal = Math.floor(easeProgress * target);
+      
+      el.textContent = currentVal;
+      
+      if (progress < 1) {
+        requestAnimationFrame(updateCount);
+      } else {
+        el.textContent = target;
+      }
+    };
+    
+    requestAnimationFrame(updateCount);
+  };
+  
+  if ('IntersectionObserver' in window) {
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          animateCounter(entry.target);
+          observer.unobserve(entry.target); // Animate once
+        }
+      });
+    }, {
+      threshold: 0.1
+    });
+    
+    counterElements.forEach(el => observer.observe(el));
+  } else {
+    counterElements.forEach(el => el.textContent = el.getAttribute('data-target'));
+  }
+}
+
+function initButtonRipples() {
+  const categoryLinks = document.querySelectorAll('.category-badge-link');
+  
+  categoryLinks.forEach(link => {
+    link.addEventListener('click', function(e) {
+      // Find coordinates of click
+      const rect = this.getBoundingClientRect();
+      const x = e.clientX - rect.left;
+      const y = e.clientY - rect.top;
+      
+      // Create ripple element
+      const ripple = document.createElement('span');
+      ripple.classList.add('ripple');
+      ripple.style.left = `${x}px`;
+      ripple.style.top = `${y}px`;
+      
+      // Append ripple
+      this.appendChild(ripple);
+      
+      // Remove after animation finishes
+      ripple.addEventListener('animationend', () => {
+        ripple.remove();
+      });
+    });
+  });
+}
+
+function initBackToTop() {
+  const btn = document.getElementById('back-to-top');
+  if (btn) {
+    window.addEventListener('scroll', () => {
+      if (window.scrollY > 400) {
+        btn.classList.add('show');
+      } else {
+        btn.classList.remove('show');
+      }
+    });
+    
+    btn.addEventListener('click', () => {
+      window.scrollTo({
+        top: 0,
+        behavior: 'smooth'
+      });
+    });
+  }
+}
+
