@@ -542,15 +542,15 @@ const productsDb = {
     ]
   },
   "school-bags-college-bags": {
-    "name": "School Bags College Bags",
+    "name": "School Bag",
     "price": "₹190",
-    "moq": "100 Pieces",
+    "moq": "150 Pieces",
     "material": "Polyester / Nylon",
     "color": "Multiple Colors Available",
-    "usage": "College / Casual",
+    "usage": "Primary / High School",
     "pattern": "Solid / Printed / Custom",
     "gender": "Unisex",
-    "capacity": "30 Litres",
+    "capacity": "25 Litres",
     "origin": "India",
     "desc": "Versatile dual-purpose bag for school and college. Heavy-duty construction, ergonomic padding, multiple pockets.",
     // "imgSrc": "https://5.imimg.com/data5/IOS/Default/2025/5/510628584/VM/YK/GK/104789349/product-jpeg-250x250.png"
