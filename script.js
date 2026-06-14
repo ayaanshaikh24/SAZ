@@ -12,6 +12,7 @@ document.addEventListener('DOMContentLoaded', () => {
   initStatsCounter();
   initButtonRipples();
   initBackToTop();
+  initCategoryScroll();
 });
 
 /* ==========================================================================
@@ -1562,14 +1563,18 @@ function initScrollAnimations() {
 
 function initStickyHeader() {
   const header = document.querySelector('.main-header');
+  const hero = document.querySelector('.hero');
   if (header) {
-    window.addEventListener('scroll', () => {
-      if (window.scrollY > 80) {
+    const checkScroll = () => {
+      const heroHeight = hero ? hero.offsetHeight : 500;
+      if (window.scrollY > heroHeight) {
         header.classList.add('header-sticky');
       } else {
         header.classList.remove('header-sticky');
       }
-    });
+    };
+    window.addEventListener('scroll', checkScroll);
+    checkScroll();
   }
 }
 
@@ -1651,13 +1656,15 @@ function initButtonRipples() {
 function initBackToTop() {
   const btn = document.getElementById('back-to-top');
   if (btn) {
-    window.addEventListener('scroll', () => {
-      if (window.scrollY > 400) {
+    const checkScroll = () => {
+      if (window.scrollY > 300) {
         btn.classList.add('show');
       } else {
         btn.classList.remove('show');
       }
-    });
+    };
+    window.addEventListener('scroll', checkScroll);
+    checkScroll();
     
     btn.addEventListener('click', () => {
       window.scrollTo({
@@ -1665,6 +1672,41 @@ function initBackToTop() {
         behavior: 'smooth'
       });
     });
+  }
+}
+
+function initCategoryScroll() {
+  const scroller = document.querySelector('.categories-container-scroller');
+  const prevBtn = document.querySelector('.categories-scroll-btn.prev');
+  const nextBtn = document.querySelector('.categories-scroll-btn.next');
+  
+  if (scroller && prevBtn && nextBtn) {
+    const scrollAmount = 300;
+    
+    prevBtn.addEventListener('click', () => {
+      scroller.scrollBy({ left: -scrollAmount, behavior: 'smooth' });
+    });
+    
+    nextBtn.addEventListener('click', () => {
+      scroller.scrollBy({ left: scrollAmount, behavior: 'smooth' });
+    });
+    
+    const toggleArrows = () => {
+      const scrollLeft = scroller.scrollLeft;
+      const maxScrollLeft = scroller.scrollWidth - scroller.clientWidth;
+      
+      prevBtn.style.opacity = scrollLeft <= 5 ? '0' : '1';
+      prevBtn.style.visibility = scrollLeft <= 5 ? 'hidden' : 'visible';
+      
+      nextBtn.style.opacity = scrollLeft >= maxScrollLeft - 5 ? '0' : '1';
+      nextBtn.style.visibility = scrollLeft >= maxScrollLeft - 5 ? 'hidden' : 'visible';
+    };
+    
+    scroller.addEventListener('scroll', toggleArrows);
+    window.addEventListener('resize', toggleArrows);
+    // Run initially and after a slight delay for layouts to load
+    toggleArrows();
+    setTimeout(toggleArrows, 500);
   }
 }
 

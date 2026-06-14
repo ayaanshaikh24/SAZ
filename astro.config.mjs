@@ -13,11 +13,6 @@ const filesToSync = [
   'script.js'
 ];
 
-const imagesToSync = [
-  'logo.jpg',
-  'saz2.jpeg'
-];
-
 function copyFile(filename) {
   try {
     const src = filename;
@@ -31,16 +26,22 @@ function copyFile(filename) {
   }
 }
 
-function copyImage(filename) {
+function copyFolderSync(from, to) {
   try {
-    const src = path.join('images', filename);
-    const dest = path.join('public/images', filename);
-    if (fs.existsSync(src)) {
-      fs.copyFileSync(src, dest);
-      console.log(`[Asset Sync] Copied ${src} -> ${dest}`);
+    if (!fs.existsSync(to)) {
+      fs.mkdirSync(to, { recursive: true });
     }
+    fs.readdirSync(from).forEach(element => {
+      const srcPath = path.join(from, element);
+      const destPath = path.join(to, element);
+      if (fs.lstatSync(srcPath).isDirectory()) {
+        copyFolderSync(srcPath, destPath);
+      } else {
+        fs.copyFileSync(srcPath, destPath);
+      }
+    });
   } catch (err) {
-    console.error(`[Asset Sync] Failed to copy image ${filename}:`, err);
+    console.error(`[Asset Sync] Failed to copy folder from ${from} to ${to}:`, err);
   }
 }
 
@@ -49,13 +50,14 @@ try {
   if (!fs.existsSync('public')) {
     fs.mkdirSync('public');
   }
-  if (!fs.existsSync('public/images')) {
-    fs.mkdirSync('public/images');
-  }
-
-  // Initial sync
+  
+  // Initial sync of pages and styles
   filesToSync.forEach(copyFile);
-  imagesToSync.forEach(copyImage);
+  
+  // Sync entire images directory recursively
+  if (fs.existsSync('images')) {
+    copyFolderSync('images', 'public/images');
+  }
 
   // Setup file watchers in development
   if (process.env.NODE_ENV !== 'production') {
@@ -66,10 +68,8 @@ try {
     });
 
     if (fs.existsSync('images')) {
-      fs.watch('images', (eventType, filename) => {
-        if (filename && imagesToSync.includes(filename)) {
-          copyImage(filename);
-        }
+      fs.watch('images', { recursive: true }, (eventType, filename) => {
+        copyFolderSync('images', 'public/images');
       });
     }
     console.log('[Asset Sync] File watchers active for root assets.');
